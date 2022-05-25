@@ -78,12 +78,15 @@ function _cbooify(Type_to_cbooify; functup=:(()), callmethod=nothing, _getproper
     if _getproperty === :getfield
         # getfieldcode = :($(esc(_getproperty))(a, f)) # call getfield, or a  user-supplied function
         getfieldcode = :(begin
-                              if hasfield($nType_to_cbooify, f)
-                                  return getfield(a, f)
-                              else
-                                  return addfunc(DYNAMIC_PROPERTIES[f])
-                              end
-                          end)
+                            if hasfield($nType_to_cbooify, f)
+                                return getfield(a, f)
+                            elseif haskey(DYNAMIC_PROPERTIES, f)
+                               return addfunc(DYNAMIC_PROPERTIES[f])
+                         else
+                               ts = string($nType_to_cbooify)
+                               error("$ts has no property or key \"$f\"")
+                             end
+                         end)
     else
         getfieldcode = :($(esc(_getproperty))(a, f)) # call getfield, or a  user-supplied function
     end
@@ -100,7 +103,7 @@ function _cbooify(Type_to_cbooify; functup=:(()), callmethod=nothing, _getproper
                 f in keys(private_properties) && return getfield(private_properties, f)
                 f in keys(FuncMap) && return addfunc(getproperty(FuncMap, f))
                 $getfieldcode;
-                $(esc(_getproperty))(a, f) # call getfield, or a  user-supplied function
+                # $(esc(_getproperty))(a, f) # call getfield, or a  user-supplied function
             end;
             function Base.getproperty(t::Type{$nType_to_cbooify}, f::Symbol)
                 f in keys(private_properties) && return getfield(private_properties, f)

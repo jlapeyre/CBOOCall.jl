@@ -5,7 +5,7 @@
     @test y.mycos() == cos(y.data)
     @test y.y == 3
     #@test_throws ErrorException y.cf
-    @test_throws KeyError y.cf  # if we look up in dynamic dict
+    @test_throws ErrorException y.cf  # Find a better to throw
     result = add_cboo_calls(MyA, (:x, :sx, :cf))
     @test result == [(:cf, :cf)]
     @test y.cf() == 1
