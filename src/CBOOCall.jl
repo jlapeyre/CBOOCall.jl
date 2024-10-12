@@ -216,7 +216,7 @@ Return `true` if the `@cbooify` macro has been called on `T`.
 is_cbooified(::Type{T}) where T = :__cboo_list__ in propertynames(T, true)
 
 # TODO: The same as above, really. Reorganize this
-is_cbooified(a) = :__cboo_list__ in propertynames(a, true)
+# is_cbooified(a) = :__cboo_list__ in propertynames(a, true)
 
 macro _add_cboo_calls(Type_to_cbooify, args...)
     _Type_to_cbooify = Core.eval(__module__, Type_to_cbooify)
@@ -234,13 +234,13 @@ function _prep_cbooify(Type_to_cbooify, args...)
         if istup(arg)
             argd[:functup] = arg
         elseif isassign(arg)
-            length(arg.args) == 2 || error("@cbooify: Bad assignment")
+            length(arg.args) == 2 || throw(CBOOCallSyntaxException("@cbooify: Bad assignment"))
             (sym, rhs) = (arg.args...,)
-            issym(sym) || error("@cbooify: LHS is not a symbol")
-            haskey(argd, sym) || error("@cbooify: Invalid keyword $sym")
+            issym(sym) || throw(CBOOCallSyntaxException("@cbooify: LHS is not a symbol"))
+            haskey(argd, sym) || throw(CBOOCallSyntaxException("@cbooify: Invalid keyword $sym"))
             argd[sym] = rhs
         else
-            error("@cbooify: Invalid argument $arg")
+            throw(CBOOCallSyntaxException("@cbooify: Invalid argument $arg"))
         end
     end
     return _cbooify(Type_to_cbooify; functup=argd[:functup], callmethod=argd[:callmethod], _getproperty=argd[:getproperty])
@@ -305,11 +305,12 @@ function cbooified_properties(::Type{T}) where T
     return T.__cboo_list__
 end
 
+# Make the user call on the type, not the instance.
 # TODO: Note, this error message may be wrong. MyA and MyA{Int} are different
-function cbooified_properties(a)
-    is_cbooified(a) || throw(NotCBOOifiedException(typeof(a)))
-    return a.__cboo_list__
-end
+# function cbooified_properties(a)
+#     is_cbooified(a) || throw(NotCBOOifiedException(typeof(a)))
+#     return a.__cboo_list__
+# end
 
 """
     whichmodule(::Type{T}) where T

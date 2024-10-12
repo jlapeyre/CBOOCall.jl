@@ -42,4 +42,10 @@ end
     @test props.sin == Base.sin
     @test isa(props.mycos, Function)
     @test length(props) == 6
+
+    @test_throws CBOOCall.NotCBOOifiedException cbooified_properties(Int)
+    @test_throws CBOOCall.AlreadyCBOOifiedException @macroexpand @cbooify MyA (sx, x)
+    @test whichmodule(MyA) == MyAs
+    @test_throws CBOOCall.NotCBOOifiedException whichmodule(Float64)
+    @test_throws CBOOCall.CBOOCallSyntaxException @macroexpand @cbooify Int 3
 end
