@@ -187,7 +187,7 @@ true
 julia> CBOOCall.whichmodule(a)
 Main.Amod
 
-julia> CBOOCall.cboofied_properties(a)
+julia> CBOOCall.cbooified_properties(a)
 (w = Main.Amod.w, z = Main.Amod.z)
 ```
 
