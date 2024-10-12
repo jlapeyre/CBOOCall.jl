@@ -30,5 +30,24 @@ end
     @test fieldnames(MyA) == (:data,)
     z = MyA(4.1)
     @test propertynames(z) == (:data, :sx, :x, :sin, :y, :mycos, :cf)
+    @test propertynames(z, true) == (:data, :sx, :x, :sin, :y, :mycos, :cf,
+                                  :__cboo_list__, :__cboo_list__expr, :__cboo_callmethod__, :__cboo_getproperty__, :__module__)
     @test_throws MethodError fieldnames(z)
+end
+
+@testset "cbooified_properties" begin
+    props = cbooified_properties(MyA)
+    @test props.sx == MyAs.sx
+    @test props.x == MyAs.x
+    @test props.cf == MyAs.cf
+    @test props.y == 3
+    @test props.sin == Base.sin
+    @test isa(props.mycos, Function)
+    @test length(props) == 6
+
+    @test_throws CBOOCall.NotCBOOifiedException cbooified_properties(Int)
+    @test_throws CBOOCall.AlreadyCBOOifiedException @macroexpand @cbooify MyA (sx, x)
+    @test whichmodule(MyA) == MyAs
+    @test_throws CBOOCall.NotCBOOifiedException whichmodule(Float64)
+    @test_throws CBOOCall.CBOOCallSyntaxException @macroexpand @cbooify Int 3
 end
