@@ -30,6 +30,8 @@ end
     @test fieldnames(MyA) == (:data,)
     z = MyA(4.1)
     @test propertynames(z) == (:data, :sx, :x, :sin, :y, :mycos, :cf)
+    @test propertynames(z, true) == (:data, :sx, :x, :sin, :y, :mycos, :cf,
+                                  :__cboo_list__, :__cboo_list__expr, :__cboo_callmethod__, :__cboo_getproperty__, :__module__)
     @test_throws MethodError fieldnames(z)
 end
 

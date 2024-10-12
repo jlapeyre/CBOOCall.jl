@@ -58,7 +58,7 @@ function _cbooify(Type_to_cbooify; functup=:(()), callmethod=nothing, _getproper
     # Declare functions in case no methods for them are yet defined
     func_decl = Expr(:block, (:(function $func end) for (sym, func) in named_tup_pairs if isa(_unesc(func), Symbol))...)
 
-    # Build a NameTuple like (f=f, g=g, ....)
+    # Build a NamedTuple like (f=f, g=g, ....)
     tuple_arg = ((:($sym = $func) for (sym, func) in named_tup_pairs)...,)
     named_tuple = Expr(:const, Expr(:(=), :FuncMap, Expr(:tuple, tuple_arg...)))
     push!(func_decl.args, named_tuple)
@@ -202,10 +202,8 @@ julia> CBOOCall.cbooified_properties(a)
 macro cbooify(Type_to_cbooify, args...)
     _Type_to_cbooify = Core.eval(__module__, Type_to_cbooify)
     is_cbooified(_Type_to_cbooify) && throw(AlreadyCBOOifiedException(_Type_to_cbooify))
-    # error("Type $_Type_to_cbooify has already been CBOO-ified. This can only be done once. " *
-    #     "Try `add_cboo_calls`.")
-    code = _prep_cbooify(Type_to_cbooify, args...)
-    return code
+    # Generate and return code
+    _prep_cbooify(Type_to_cbooify, args...)
 end
 
 """
@@ -326,9 +324,9 @@ function whichmodule(::Type{T}) where T
 end
 
 # Note, this error message may be wrong. MyA and MyA{Int} are different
-function whichmodule(a)
-    is_cbooified(a) || throw(NotCBOOifiedException(typeof(a)))
-    return a.__module__
-end
+# function whichmodule(a)
+#     is_cbooified(a) || throw(NotCBOOifiedException(typeof(a)))
+#     return a.__module__
+# end
 
 end # module CBOOCall
