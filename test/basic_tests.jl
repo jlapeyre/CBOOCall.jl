@@ -32,3 +32,14 @@ end
     @test propertynames(z) == (:data, :sx, :x, :sin, :y, :mycos, :cf)
     @test_throws MethodError fieldnames(z)
 end
+
+@testset "cbooified_properties" begin
+    props = cbooified_properties(MyA)
+    @test props.sx == MyAs.sx
+    @test props.x == MyAs.x
+    @test props.cf == MyAs.cf
+    @test props.y == 3
+    @test props.sin == Base.sin
+    @test isa(props.mycos, Function)
+    @test length(props) == 6
+end
